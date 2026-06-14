@@ -4,7 +4,7 @@ Estimate heart rate (BPM) from facial or fingertip video using classical signal 
 
 The pipeline detects a face via Haar Cascade, extracts the green-channel intensity frame by frame, applies an FFT bandpass filter (0.67–3 Hz → 40–180 BPM), and finds the dominant pulse frequency.
 
-![rPPG pipeline flowchart] : refer the rppg_pipeline_flowchart.png file
+![rPPG pipeline flowchart](flowchart.svg)
 
 ---
 
@@ -12,28 +12,39 @@ The pipeline detects a face via Haar Cascade, extracts the green-channel intensi
 
 ```
 RPPG/
-├── app.py                  ← Streamlit web app (quickest way to try it)
-├── sigMain.py              ← Signal processing module (FFT filter, peak detection, HRV)
-├── SNR.py                  ← Signal-to-noise ratio helper
-├── requirements.txt        ← Python dependencies for the Streamlit app
 │
-├── rppg-app/               ← Full-stack web app (FastAPI + vanilla JS frontend)
+│   ── Streamlit web app (Option A: quickest way to run) ──
+├── app.py                     ← Streamlit front-end
+├── sigMain.py                 ← Signal processing module (FFT, peak detection, HRV)
+├── SNR.py                     ← Signal-to-noise ratio helper
+├── requirements.txt           ← Python dependencies for the Streamlit app
+│
+│   ── Full-stack web app (Option B: FastAPI + JS frontend) ──
+├── rppg-app/
+│   ├── README.md              ← Docs specific to the full-stack app
 │   ├── docker-compose.yml
 │   ├── backend/
-│   │   ├── main.py
-│   │   ├── requirements.txt
+│   │   ├── main.py            ← FastAPI server with its own DSP pipeline
+│   │   ├── requirements.txt   ← Backend-only dependencies
 │   │   └── Dockerfile
 │   └── frontend/
-│       └── index.html
+│       └── index.html         ← Single-page vanilla JS client
 │
-├── Face rppg.ipynb         ← Jupyter notebook (face-based rPPG, original research)
-├── Fingertip rppg.py       ← Fingertip HSV V-channel script (original research)
-├── Samples/                ← Place your test videos here (not tracked by git)
-├── flowchart.svg           ← Pipeline flowchart (shown in README)
-├── face rppg flowchart.png ← Original hand-drawn flowchart
-├── results.png
-└── LICENSE
+│   ── Original research scripts ──
+├── Face rppg.ipynb            ← Jupyter notebook: face-based rPPG from video file
+├── Fingertip rppg.py          ← Standalone script: fingertip HSV V-channel
+│
+│   ── Assets & config ──
+├── flowchart.svg              ← Pipeline flowchart (shown below)
+├── face rppg flowchart.png    ← Original hand-drawn flowchart
+├── results.png                ← Sample output screenshot
+├── LICENSE                    ← MIT
+├── .gitignore
+└── README.md
 ```
+
+> **Note:** Test videos go in a `Samples/` folder at the repo root. This folder is
+> git-ignored, so you need to create it yourself and add your own `.mp4` / `.avi` / `.mov` files.
 
 ---
 
@@ -120,25 +131,30 @@ python -m http.server 3000
 
 ## Running the Original Research Scripts
 
-These are the standalone scripts from the initial research phase.
+These are the standalone scripts from the initial research phase. They are included in the repo at the root level alongside the web apps. All dependencies are covered by the same `requirements.txt`, so if you already ran `pip install -r requirements.txt` you're set.
 
 ### Face-based (Jupyter Notebook)
 
 ```bash
-pip install opencv-python scipy matplotlib numpy
+# Install Jupyter if you don't have it
+pip install jupyter
+
+# Launch the notebook
 jupyter notebook "Face rppg.ipynb"
 ```
 
-Place your test video in a `Samples/` folder and update the file path inside the notebook.
+Create a `Samples/` folder at the repo root and place your test video inside it (e.g. `Samples/face_video.mp4`). Update the file path inside the notebook to match.
 
 ### Fingertip-based
 
 ```bash
-pip install opencv-python scipy matplotlib numpy
 python "Fingertip rppg.py"
 ```
 
-Expects a video at `Samples/82.mp4` — update the path in the script to point to your own video.
+By default the script looks for `Samples/82.mp4` — update the path in the script to point to your own fingertip video.
+
+> **Note:** The original scripts use `sigMain.py` and `SNR.py` from the repo root.
+> Both files must be present for the scripts to run.
 
 ---
 
